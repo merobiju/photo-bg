@@ -29,7 +29,7 @@ Grab the latest binaries from the [Releases](https://github.com/merobiju/photo-b
 Requires **Go 1.23+** and **Wails CLI v2**.
 
 ```bash
-git clone \https://github.com/merobiju/photo-bg.git
+git clone https://github.com/merobiju/photo-bg.git
 cd photo-bg
 wails build -clean -tags native_webview2loader
 ```
