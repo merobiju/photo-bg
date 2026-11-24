@@ -86,7 +86,8 @@ xattr -cr Photo_BG
 
 **Ubuntu / Debian / Linux Mint / Kali:**
 ```bash
-sudo apt update && sudo apt install -y libgtk-3-0 libwebkit2gtk-4.1-0
+sudo apt update
+sudo apt install -y libgtk-3-0 libwebkit2gtk-4.1-0
 ```
 
 **Fedora / RHEL / Rocky Linux:**
