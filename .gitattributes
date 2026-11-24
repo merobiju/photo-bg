@@ -1,1 +1,2 @@
-frontend/dist/* linguist-generated=true
+frontend/dist/** linguist-generated=true
+frontend/wailsjs/** linguist-generated=true
