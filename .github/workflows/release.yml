@@ -76,7 +76,13 @@ jobs:
           mkdir -p dist_pkg
           go build -tags "${{ matrix.tags }}" -ldflags "${{ matrix.ldflags }}" -o "dist_pkg/Photo_BG${{ matrix.ext }}" .
 
-      - name: Package Archive
+      - name: Package Windows ZIP
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path dist_pkg/* -DestinationPath ${{ matrix.artifact }}.zip -Force
+
+      - name: Package Unix ZIP
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           cd dist_pkg

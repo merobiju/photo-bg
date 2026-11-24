@@ -2,13 +2,11 @@ package main
 
 import (
 "embed"
+"fmt"
 "os"
 "path/filepath"
 "runtime"
 "sort"
-"strings"
-"syscall"
-"unsafe"
 
 "github.com/wailsapp/wails/v2"
 "github.com/wailsapp/wails/v2/pkg/options"
@@ -19,17 +17,6 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-func showErrorBox(title, msg string) {
-if runtime.GOOS == "windows" {
-user32 := syscall.NewLazyDLL("user32.dll")
-msgBox := user32.NewProc("MessageBoxW")
-tPtr, _ := syscall.UTF16PtrFromString(title)
-mPtr, _ := syscall.UTF16PtrFromString(msg)
-msgBox.Call(0, uintptr(unsafe.Pointer(mPtr)), uintptr(unsafe.Pointer(tPtr)), 0x00000010)
-}
-}
-
-// विन्डोजमा भएको वास्तविक WebView2 वा Edge इन्जिनको पाथ सिधै पत्ता लगाउने फंक्सन (पपअप रोक्न)
 func findSystemWebView2() string {
 if runtime.GOOS != "windows" {
 return ""
@@ -74,9 +61,6 @@ configDir = os.TempDir()
 userData := filepath.Join(configDir, "PhotoBG_BijayaPokhrel", "WebViewData")
 _ = os.MkdirAll(userData, 0755)
 
-wvBrowserPath := findSystemWebView2()
-_ = strings.TrimSpace(wvBrowserPath)
-
 app := NewApp()
 err = wails.Run(&options.App{
 Title:     "Photo BG — Offline HD Background & Signature Remover",
@@ -88,7 +72,7 @@ AssetServer: &assetserver.Options{
 Assets: assets,
 },
 Windows: &windows.Options{
-WebviewBrowserPath:  wvBrowserPath,
+WebviewBrowserPath:  findSystemWebView2(),
 WebviewUserDataPath: userData,
 Theme:               windows.SystemDefault,
 },
@@ -99,6 +83,7 @@ app,
 })
 
 if err != nil {
-showErrorBox("Photo BG Error", "Application failed to start:\n\n"+err.Error())
+fmt.Fprintln(os.Stderr, "Photo BG Error:", err)
+os.Exit(1)
 }
 }
