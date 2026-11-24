@@ -21,7 +21,15 @@ jobs:
             ext: .exe
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
-            artifact: Photo_BG_Portable_Windows_x64
+            artifact: Photo_BG_Windows_x64_Portable
+          - os: windows-latest
+            goos: windows
+            goarch: "386"
+            cgo: "0"
+            ext: .exe
+            tags: "desktop,production,native_webview2loader"
+            ldflags: "-H=windowsgui -s -w"
+            artifact: Photo_BG_Windows_x86_32bit
           - os: windows-latest
             goos: windows
             goarch: arm64
@@ -29,7 +37,7 @@ jobs:
             ext: .exe
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
-            artifact: Photo_BG_Portable_Windows_ARM64
+            artifact: Photo_BG_Windows_ARM64
           - os: macos-latest
             goos: darwin
             goarch: arm64
@@ -37,7 +45,7 @@ jobs:
             ext: ""
             tags: "desktop,production"
             ldflags: "-s -w"
-            artifact: Photo_BG_macOS_AppleSilicon
+            artifact: Photo_BG_macOS_AppleSilicon_M1_M4
           - os: macos-latest
             goos: darwin
             goarch: amd64
@@ -45,7 +53,7 @@ jobs:
             ext: ""
             tags: "desktop,production"
             ldflags: "-s -w"
-            artifact: Photo_BG_macOS_Intel
+            artifact: Photo_BG_macOS_Intel_x64
           - os: ubuntu-24.04
             goos: linux
             goarch: amd64
@@ -53,7 +61,15 @@ jobs:
             ext: ""
             tags: "desktop,production,webkit2_41"
             ldflags: "-s -w"
-            artifact: Photo_BG_Linux_x64
+            artifact: Photo_BG_Linux_Ubuntu_Debian_x64
+          - os: ubuntu-24.04
+            goos: linux
+            goarch: amd64
+            cgo: "1"
+            ext: ""
+            tags: "desktop,production,webkit2_41"
+            ldflags: "-s -w"
+            artifact: Photo_BG_Linux_Fedora_Arch_x64
 
     runs-on: ${{ matrix.os }}
 
@@ -82,19 +98,22 @@ jobs:
           mkdir -p dist_pkg
           go build -tags "${{ matrix.tags }}" -ldflags "${{ matrix.ldflags }}" -o "dist_pkg/Photo_BG${{ matrix.ext }}" .
 
-      - name: Package Windows ZIP
+      - name: Package Windows Archives
         if: runner.os == 'Windows'
         shell: pwsh
         run: Compress-Archive -Path dist_pkg/* -DestinationPath ${{ matrix.artifact }}.zip -Force
 
-      - name: Package Unix ZIP
+      - name: Package Unix Archives (.zip and .tar.gz)
         if: runner.os != 'Windows'
         shell: bash
         run: |
           cd dist_pkg
           zip -r ../${{ matrix.artifact }}.zip .
+          tar -czvf ../${{ matrix.artifact }}.tar.gz .
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ matrix.artifact }}.zip
+          files: |
+            ${{ matrix.artifact }}.zip
+            ${{ matrix.artifact }}.tar.gz
