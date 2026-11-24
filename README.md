@@ -48,7 +48,7 @@ Pre-compiled standalone binaries and installers are published on the **[Releases
 | **Windows 11 / 10** | x64 (64-bit) | `Photo_BG_Portable_Windows_x64.zip` | Standalone Portable EXE |
 | **Windows 11** | ARM64 (Surface / Snapdragon) | `Photo_BG_Portable_Windows_ARM64.zip` | Standalone Portable EXE |
 | **Windows 10 / 8 / 7** | x86 (32-bit Legacy) | `Photo_BG_Windows_x86_32bit.zip` | Standalone Portable EXE |
-| **macOS** | Apple Silicon (M1 / M2 / M3 / M4) | `Photo_BG_macOS_AppleSilicon.zip` | Native Darwin Binary |
+| **macOS** | Apple Silicon (M1 / M2 / M3 / M4) | `Photo_BG_macOS_AppleSilicon_M1_M4.zip` | Native Darwin Binary |
 | **macOS** | Intel (x86_64) | `Photo_BG_macOS_Intel.zip` | Native Darwin Binary |
 | **Linux** | Ubuntu / Debian / Mint / Kali (x64) | `Photo_BG_Linux_Ubuntu_Debian_x64.zip` | Native GTK/WebKit Binary |
 | **Linux** | Fedora / RHEL / Arch (x64) | `Photo_BG_Linux_Fedora_Arch_x64.tar.gz` | Native GTK/WebKit Binary |
@@ -68,7 +68,7 @@ Pre-compiled standalone binaries and installers are published on the **[Releases
 > **Note on Windows SmartScreen:** Because this open-source binary is not signed with a paid commercial Authenticode certificate, Windows Defender SmartScreen may display a *"Windows protected your PC"* prompt on first launch. Click **More info** and then **Run anyway** to proceed.
 ### macOS (Apple Silicon & Intel)
 
-1. Download `Photo_BG_macOS_AppleSilicon.zip` (for M1/M2/M3/M4 Macs) or `Photo_BG_macOS_Intel.zip` (for Intel Macs).
+1. Download `Photo_BG_macOS_AppleSilicon_M1_M4.zip` (for M1/M2/M3/M4 Macs) or `Photo_BG_macOS_Intel.zip` (for Intel Macs).
 2. Double-click the archive to extract the `Photo_BG` binary.
 3. Open **Terminal** in the extracted folder, grant execute permission, and clear the macOS quarantine attribute:
 
