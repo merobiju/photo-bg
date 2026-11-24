@@ -1,0 +1,17 @@
+{
+  "name": "PhotoBG",
+  "outputfilename": "Photo_BG.exe",
+  "frontend:dir": "frontend",
+  "frontend:dist": "frontend/dist",
+  "author": {
+    "name": "Bijaya Pokhrel",
+    "email": "merobiju@proton.me"
+  },
+  "info": {
+    "companyName": "Bijaya Pokhrel",
+    "productName": "Photo BG",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright © 2026 Bijaya Pokhrel (merobiju@proton.me). All rights reserved.",
+    "comments": "Photo BG - Offline HD Signature & Background Cleaner"
+  }
+}

@@ -1,0 +1,5 @@
+build/bin/
+*.exe
+*.zip
+*.syso
+.DS_Store

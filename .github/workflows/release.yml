@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+            ext: .exe
+            tags: "desktop,production,native_webview2loader"
+            ldflags: "-H=windowsgui -s -w"
+            artifact: Photo_BG_Portable_Windows_x64
+          - os: windows-latest
+            goos: windows
+            goarch: arm64
+            ext: .exe
+            tags: "desktop,production,native_webview2loader"
+            ldflags: "-H=windowsgui -s -w"
+            artifact: Photo_BG_Portable_Windows_ARM64
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+            ext: ""
+            tags: "desktop,production"
+            ldflags: "-s -w"
+            artifact: Photo_BG_macOS_AppleSilicon
+          - os: macos-latest
+            goos: darwin
+            goarch: amd64
+            ext: ""
+            tags: "desktop,production"
+            ldflags: "-s -w"
+            artifact: Photo_BG_macOS_Intel
+          - os: ubuntu-24.04
+            goos: linux
+            goarch: amd64
+            ext: ""
+            tags: "desktop,production"
+            ldflags: "-s -w"
+            artifact: Photo_BG_Linux_x64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install Linux Dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Build Binary
+        shell: bash
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p dist_pkg
+          go build -tags "${{ matrix.tags }}" -ldflags "${{ matrix.ldflags }}" -o "dist_pkg/Photo_BG${{ matrix.ext }}" .
+
+      - name: Package Archive
+        shell: bash
+        run: |
+          cd dist_pkg
+          zip -r ../${{ matrix.artifact }}.zip .
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.artifact }}.zip
