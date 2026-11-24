@@ -17,6 +17,7 @@ jobs:
           - os: windows-latest
             goos: windows
             goarch: amd64
+            cgo: "0"
             ext: .exe
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
@@ -24,6 +25,7 @@ jobs:
           - os: windows-latest
             goos: windows
             goarch: arm64
+            cgo: "0"
             ext: .exe
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
@@ -31,6 +33,7 @@ jobs:
           - os: macos-latest
             goos: darwin
             goarch: arm64
+            cgo: "1"
             ext: ""
             tags: "desktop,production"
             ldflags: "-s -w"
@@ -38,6 +41,7 @@ jobs:
           - os: macos-latest
             goos: darwin
             goarch: amd64
+            cgo: "1"
             ext: ""
             tags: "desktop,production"
             ldflags: "-s -w"
@@ -45,8 +49,9 @@ jobs:
           - os: ubuntu-24.04
             goos: linux
             goarch: amd64
+            cgo: "1"
             ext: ""
-            tags: "desktop,production"
+            tags: "desktop,production,webkit2_41"
             ldflags: "-s -w"
             artifact: Photo_BG_Linux_x64
 
@@ -70,6 +75,7 @@ jobs:
       - name: Build Binary
         shell: bash
         env:
+          CGO_ENABLED: ${{ matrix.cgo }}
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
