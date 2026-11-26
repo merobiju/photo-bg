@@ -1,17 +1,15 @@
 {
-  "name": "PhotoBG",
-  "outputfilename": "Photo_BG.exe",
-  "frontend:dir": "frontend",
-  "frontend:dist": "frontend/dist",
-  "author": {
-    "name": "Bijaya Pokhrel",
-    "email": "merobiju@proton.me"
-  },
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "Photo BG",
+  "outputfilename": "PhotoBG",
+  "frontend:install": "",
+  "frontend:build": "",
+  "assetdir": "frontend/dist",
+  "wailsjsdir": "./frontend",
   "info": {
-    "companyName": "Bijaya Pokhrel",
+    "companyName": "Photo BG",
     "productName": "Photo BG",
     "productVersion": "1.0.0",
-    "copyright": "Copyright © 2026 Bijaya Pokhrel (merobiju@proton.me). All rights reserved.",
-    "comments": "Photo BG - Offline HD Signature & Background Cleaner"
+    "comments": "Photo BG — Offline HD Background Remover"
   }
 }
