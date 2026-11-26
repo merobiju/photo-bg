@@ -7,9 +7,10 @@
   "assetdir": "frontend/dist",
   "wailsjsdir": "./frontend",
   "info": {
-    "companyName": "Photo BG",
+    "companyName": "Bijaya Pokhrel",
     "productName": "Photo BG",
     "productVersion": "3.0.3",
-    "comments": "Photo BG — Offline HD Background Remover"
+    "copyright": "Copyright © 2026 Bijaya Pokhrel",
+    "comments": "Photo BG — Made in Nepal by Bijaya Pokhrel"
   }
 }
