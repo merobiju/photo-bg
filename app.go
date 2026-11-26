@@ -464,3 +464,29 @@ func (a *App) SaveOne(folder, filename, colorMode string, boldness int, formSize
 	}
 	return "Saved: clean_signatures\\" + outName
 }
+func (a *App) GetThumb(folder, filename string) string {
+	fullPath := filepath.Join(cleanFolder(folder), filepath.Base(filename))
+	f, err := os.Open(fullPath)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+	src, _, err := image.Decode(f)
+	if err != nil {
+		return ""
+	}
+	b := src.Bounds()
+	if b.Dx() == 0 || b.Dy() == 0 {
+		return ""
+	}
+	ratio := math.Min(64.0/float64(b.Dx()), 64.0/float64(b.Dy()))
+	nw := max(1, int(float64(b.Dx())*ratio))
+	nh := max(1, int(float64(b.Dy())*ratio))
+	dst := image.NewRGBA(image.Rect(0, 0, nw, nh))
+	xdraw.ApproxBiLinear.Scale(dst, dst.Bounds(), src, b, xdraw.Src, nil)
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, dst); err != nil {
+		return ""
+	}
+	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(buf.Bytes())
+}
