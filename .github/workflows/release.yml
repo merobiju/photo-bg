@@ -67,19 +67,9 @@ jobs:
             tags: "desktop,production,webkit2_41"
             ldflags: "-s -w"
             cgo_flags: ""
-            artifact: Photo_BG_Linux_Ubuntu_Debian_64bit
-          - os: ubuntu-24.04
-            goos: linux
-            goarch: amd64
-            cgo: "1"
-            ext: ""
-            tags: "desktop,production,webkit2_41"
-            ldflags: "-s -w"
-            cgo_flags: ""
-            artifact: Photo_BG_Linux_Fedora_Arch_64bit
+            artifact: Photo_BG_Linux_64bit
 
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,16 +96,16 @@ jobs:
         run: |
           mkdir -p dist_pkg
           go build -tags "${{ matrix.tags }}" -ldflags "${{ matrix.ldflags }}" -o "dist_pkg/Photo_BG${{ matrix.ext }}" .
-
       - name: Build Windows Next-Next Setup Installer (NSIS)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          $progFiles = if ("${{ matrix.goarch }}" -eq "386") { "`$PROGRAMFILES" } else { "`$PROGRAMFILES64" }
           $nsi = @"
           !include "MUI2.nsh"
           Name "Photo BG - Offline HD Studio"
           OutFile "${{ matrix.artifact }}_Setup.exe"
-          InstallDir "`$PROGRAMFILES64\Photo BG"
+          InstallDir "$progFiles\Photo BG"
           RequestExecutionLevel admin
           !insertmacro MUI_PAGE_WELCOME
           !insertmacro MUI_PAGE_DIRECTORY
@@ -132,7 +122,7 @@ jobs:
             CreateShortcut "`$SMPROGRAMS\Photo BG\Photo BG.lnk" "`$INSTDIR\Photo_BG.exe"
             CreateShortcut "`$DESKTOP\Photo BG.lnk" "`$INSTDIR\Photo_BG.exe"
             WriteUninstaller "`$INSTDIR\Uninstall.exe"
-                    SectionEnd
+          SectionEnd
           Section "Uninstall"
             Delete "`$INSTDIR\Photo_BG.exe"
             Delete "`$INSTDIR\Uninstall.exe"
