@@ -35,7 +35,7 @@ func findSystemWebView2() string {
 		}
 		var versions []string
 		for _, e := range entries {
-			if e.IsDir() && len(e.Name()) > 0 && e.Name() >= '0' && e.Name() <= '9' {
+			if e.IsDir() && len(e.Name()) > 0 && e.Name()[0] >= '0' && e.Name()[0] <= '9' {
 				versions = append(versions, e.Name())
 			}
 		}
