@@ -46,10 +46,10 @@ func main() {
 			app,
 		},
 
-		Windows: &windows.Options{
+				Windows: &windows.Options{
 			WebviewUserDataPath: webviewUserDataPath(),
-			WebviewBrowserPath:  findSystemWebView2(),
 		},
+
 	})
 	if err != nil {
 		println("Error:", err.Error())
