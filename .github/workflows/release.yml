@@ -22,7 +22,7 @@ jobs:
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
             cgo_flags: ""
-            artifact: Photo_BG_Windows_x64_Portable
+            artifact: Photo_BG_Windows_64bit_Most_PCs
           - os: windows-latest
             goos: windows
             goarch: "386"
@@ -31,7 +31,7 @@ jobs:
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
             cgo_flags: ""
-            artifact: Photo_BG_Windows_x86_32bit
+            artifact: Photo_BG_Windows_32bit_Old_PCs
           - os: windows-latest
             goos: windows
             goarch: arm64
@@ -40,7 +40,7 @@ jobs:
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
             cgo_flags: ""
-            artifact: Photo_BG_Windows_ARM64
+            artifact: Photo_BG_Windows_ARM_Surface
           - os: macos-latest
             goos: darwin
             goarch: arm64
@@ -49,7 +49,7 @@ jobs:
             tags: "desktop,production"
             ldflags: "-s -w"
             cgo_flags: "-arch arm64"
-            artifact: Photo_BG_macOS_AppleSilicon_M1_M4
+            artifact: Photo_BG_Mac_New_M1_M2_M3_M4
           - os: macos-latest
             goos: darwin
             goarch: amd64
@@ -58,7 +58,7 @@ jobs:
             tags: "desktop,production"
             ldflags: "-s -w"
             cgo_flags: "-arch x86_64"
-            artifact: Photo_BG_macOS_Intel_x64
+            artifact: Photo_BG_Mac_Old_Intel
           - os: ubuntu-24.04
             goos: linux
             goarch: amd64
@@ -67,7 +67,7 @@ jobs:
             tags: "desktop,production,webkit2_41"
             ldflags: "-s -w"
             cgo_flags: ""
-            artifact: Photo_BG_Linux_Ubuntu_Debian_x64
+            artifact: Photo_BG_Linux_Ubuntu_Debian_64bit
           - os: ubuntu-24.04
             goos: linux
             goarch: amd64
@@ -76,7 +76,7 @@ jobs:
             tags: "desktop,production,webkit2_41"
             ldflags: "-s -w"
             cgo_flags: ""
-            artifact: Photo_BG_Linux_Fedora_Arch_x64
+            artifact: Photo_BG_Linux_Fedora_Arch_64bit
 
     runs-on: ${{ matrix.os }}
 
@@ -107,10 +107,47 @@ jobs:
           mkdir -p dist_pkg
           go build -tags "${{ matrix.tags }}" -ldflags "${{ matrix.ldflags }}" -o "dist_pkg/Photo_BG${{ matrix.ext }}" .
 
-      - name: Package Windows Archives
+      - name: Build Windows Next-Next Setup Installer (NSIS)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: Compress-Archive -Path dist_pkg/* -DestinationPath ${{ matrix.artifact }}.zip -Force
+        run: |
+          $nsi = @"
+          !include "MUI2.nsh"
+          Name "Photo BG - Offline HD Studio"
+          OutFile "${{ matrix.artifact }}_Setup.exe"
+          InstallDir "`$PROGRAMFILES64\Photo BG"
+          RequestExecutionLevel admin
+          !insertmacro MUI_PAGE_WELCOME
+          !insertmacro MUI_PAGE_DIRECTORY
+          !insertmacro MUI_PAGE_INSTFILES
+          !define MUI_FINISHPAGE_RUN "`$INSTDIR\Photo_BG.exe"
+          !insertmacro MUI_PAGE_FINISH
+          !insertmacro MUI_UNPAGE_CONFIRM
+          !insertmacro MUI_UNPAGE_INSTFILES
+          !insertmacro MUI_LANGUAGE "English"
+          Section "Install"
+            SetOutPath "`$INSTDIR"
+            File "dist_pkg\Photo_BG.exe"
+            CreateDirectory "`$SMPROGRAMS\Photo BG"
+            CreateShortcut "`$SMPROGRAMS\Photo BG\Photo BG.lnk" "`$INSTDIR\Photo_BG.exe"
+            CreateShortcut "`$DESKTOP\Photo BG.lnk" "`$INSTDIR\Photo_BG.exe"
+            WriteUninstaller "`$INSTDIR\Uninstall.exe"
+                    SectionEnd
+          Section "Uninstall"
+            Delete "`$INSTDIR\Photo_BG.exe"
+            Delete "`$INSTDIR\Uninstall.exe"
+            Delete "`$DESKTOP\Photo BG.lnk"
+            RMDir /r "`$SMPROGRAMS\Photo BG"
+            RMDir "`$INSTDIR"
+          SectionEnd
+          "@
+          Set-Content -Path "installer.nsi" -Value $nsi
+          makensis installer.nsi
+
+      - name: Package Windows Portable Archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path dist_pkg/* -DestinationPath ${{ matrix.artifact }}_Portable.zip -Force
 
       - name: Package Unix Archives (.zip and .tar.gz)
         if: runner.os != 'Windows'
@@ -125,5 +162,7 @@ jobs:
         with:
           fail_on_unmatched_files: false
           files: |
+            ${{ matrix.artifact }}_Setup.exe
+            ${{ matrix.artifact }}_Portable.zip
             ${{ matrix.artifact }}.zip
             ${{ matrix.artifact }}.tar.gz
