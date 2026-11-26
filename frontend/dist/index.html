@@ -1,6 +1,3 @@
-  .item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; }
-  .thumb { width: 38px; height: 32px; object-fit: contain; border-radius: 5px; background: #FFF; border: 1px solid var(--border); flex-shrink: 0; }
-  .item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,9 +27,11 @@
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
   .panel-title { padding: 12px 16px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; color: var(--muted); border-bottom: 1px solid var(--border); text-transform: uppercase; }
   .list { flex: 1; overflow-y: auto; padding: 8px; }
-  .item { padding: 9px 12px; border-radius: 8px; font-size: 13px; color: var(--sub); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; transition: 0.1s; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 8px; font-size: 13px; color: var(--sub); cursor: pointer; margin-bottom: 3px; transition: 0.1s; }
   .item:hover { background: var(--bg); color: var(--text); }
   .item.active { background: #E7F1FF; color: var(--blue); font-weight: 700; }
+  .thumb { width: 38px; height: 32px; object-fit: contain; border-radius: 5px; background: #FFF; border: 1px solid var(--border); flex-shrink: 0; }
+  .item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .canvas-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
   .canvas-hdr { padding: 10px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--muted); }
   .stage { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
@@ -55,7 +54,8 @@
   .z-btn { padding: 3px 9px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); font-size: 12px; font-weight: 700; cursor: pointer; color: var(--sub); }
   .z-btn:hover, .z-btn.active { background: #E7F1FF; color: var(--blue); border-color: var(--blue); }
 </style>
-</head><body>
+</head>
+<body>
   <div class="header">
     <div class="logo-wrap">
       <svg width="30" height="30" viewBox="0 0 500 500">
@@ -86,7 +86,7 @@
           <button class="z-btn" onclick="setBg('white', this)">White</button>
           <button class="z-btn" onclick="setBg('dark', this)">Dark</button>
         </div>
-        <span style="color:#007BFF;font-weight:700;">Drag Center Slider to Compare</span>
+        <span style="color:#007BFF;font-weight:700;">Left-Drag: Compare • Ctrl+Wheel: Zoom • Right-Drag: Move</span>
         <div class="zoom-bar">
           <button class="z-btn" onclick="setZoom(-0.25)">-</button>
           <span id="zoomLbl" style="min-width:38px;text-align:center;">100%</span>
@@ -131,15 +131,14 @@
       </div>
     </div>
   </div>
-
 <script>
   let currentFolder = "", currentFile = "", inkMode = "black", bold = 50, dragging = false;
   const box = document.getElementById("compareBox");
-  box.addEventListener("mousedown", () => dragging = true);
+  box.addEventListener("mousedown", (e) => { if (e.button === 0) dragging = true; });
   window.addEventListener("mouseup", () => dragging = false);
 
   function moveSlider(e) {
-    if (!dragging && e.buttons !== 1) return;
+    if (!dragging || e.buttons !== 1) return;
     const rect = box.getBoundingClientRect();
     let pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
     document.getElementById("origLayer").style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
@@ -172,15 +171,23 @@
     files.forEach((f, idx) => {
       const div = document.createElement("div");
       div.className = "item" + (idx === 0 ? " active" : "");
-      div.innerText = f;
+      const img = document.createElement("img");
+      img.className = "thumb";
+      window.go.main.App.GetThumb(dir, f).then(b64 => { if (b64) img.src = b64; });
+      const span = document.createElement("span");
+      span.className = "item-name";
+      span.innerText = f;
+      div.appendChild(img);
+      div.appendChild(span);
       div.onclick = () => {
         document.querySelectorAll(".item").forEach(el => el.classList.remove("active"));
         div.classList.add("active");
+        resetZoom();
         selectFile(f);
       };
       list.appendChild(div);
     });
-    if (files.length > 0) selectFile(files);
+    if (files.length > 0) selectFile(files[0]);
   }
 
   async function selectFile(f) {
@@ -189,7 +196,7 @@
     const res = await window.go.main.App.GetPreview(currentFolder, f, inkMode, parseInt(bold));
     if (res.originalB64) document.getElementById("imgOrig").src = res.originalB64;
     if (res.extractedB64) document.getElementById("imgClean").src = res.extractedB64;
-    document.getElementById("statusText").innerText = res.error ? res.error : "Ready • Drag slider to compare Before & After";
+    document.getElementById("statusText").innerText = res.error ? res.error : "Ctrl+Wheel: Zoom • Right-Drag: Move • Left-Drag: Compare";
   }
 
   function setInk(mode, btn) {
@@ -218,7 +225,24 @@
 
   function openOut() { window.go.main.App.OpenOutFolder(currentFolder); }
   async function makeZip() { document.getElementById("statusText").innerText = await window.go.main.App.ExportZip(currentFolder); }
-  let zoomLevel = 1.0;
+
+  let zoomLevel = 1.0, panX = 0, panY = 0, isPanning = false, startX = 0, startY = 0;
+
+  function applyTransform() {
+    const t = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+    document.getElementById("imgClean").style.transform = t;
+    document.getElementById("imgOrig").style.transform = t;
+    document.getElementById("zoomLbl").innerText = Math.round(zoomLevel * 100) + "%";
+  }
+
+  function setZoom(delta) {
+    zoomLevel = Math.max(0.25, Math.min(5.0, zoomLevel + delta));
+    if (zoomLevel <= 1.0) { panX = 0; panY = 0; }
+    applyTransform();
+  }
+
+  function resetZoom() { zoomLevel = 1.0; panX = 0; panY = 0; applyTransform(); }
+
   function setBg(mode, btn) {
     const st = document.getElementById("compareBox");
     st.classList.remove("bg-white", "bg-dark");
@@ -227,16 +251,33 @@
     btn.parentElement.querySelectorAll(".z-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
   }
-  function setZoom(delta) {
-    zoomLevel = Math.max(0.5, Math.min(3.0, zoomLevel + delta));
-    applyZoom();
-  }
-  function resetZoom() { zoomLevel = 1.0; applyZoom(); }
-  function applyZoom() {
-    document.getElementById("zoomLbl").innerText = Math.round(zoomLevel * 100) + "%";
-    document.getElementById("imgClean").style.transform = `scale(${zoomLevel})`;
-    document.getElementById("imgOrig").style.transform  = `scale(${zoomLevel})`;
-  }
+
+  box.addEventListener("wheel", (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      setZoom(e.deltaY < 0 ? 0.2 : -0.2);
+    }
+  }, { passive: false });
+
+  box.addEventListener("contextmenu", (e) => e.preventDefault());
+  box.addEventListener("mousedown", (e) => {
+    if (e.button === 2) {
+      isPanning = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+      box.style.cursor = "grabbing";
+    }
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!isPanning) return;
+    panX = e.clientX - startX;
+    panY = e.clientY - startY;
+    applyTransform();
+  });
+  window.addEventListener("mouseup", (e) => {
+    if (e.button === 2) { isPanning = false; box.style.cursor = "default"; }
+  });
+
   window.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT") return;
     if (e.ctrlKey && e.key.toLowerCase() === "o") { e.preventDefault(); browse(); }
