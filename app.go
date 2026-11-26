@@ -23,7 +23,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
+wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
 	_ "golang.org/x/image/bmp"
 	"golang.org/x/image/draw"
 	_ "golang.org/x/image/tiff"
@@ -34,18 +34,18 @@ const (
 	outDirName  = "PhotoBG_Output"
 	zipFileName = "PhotoBG_Export.zip"
 
-	thumbMax      = 64   // longest side of queue thumbnails
-	previewMax    = 900  // longest side of the live-preview source
-	maxSrcDim     = 1200 // longest side of the export source before upscaling
-	exportUpscale = 3    // HD export multiplier
-	maxWorkers    = 4    // bounded worker pool for ProcessBatch
-	maxDropImages = 500  // cap for dropped files/folders
+	thumbMax      = 64
+	previewMax    = 900
+	maxSrcDim     = 1200
+	exportUpscale = 3
+	maxWorkers    = 4
+	maxDropImages = 500
 
 	maxDecodePixels  = 120_000_000
 	maxProcessPixels = 16_000_000
 
-	bgRadius = 45 // local-background window radius (integral image)
-	cropPad  = 6  // padding around the foreground bounding box
+	bgRadius = 64
+	cropPad  = 6
 	formW    = 600
 	formH    = 200
 
@@ -57,9 +57,6 @@ var imageExts = map[string]bool{
 	".bmp": true, ".webp": true, ".tif": true, ".tiff": true,
 }
 
-// PreviewResult is returned to the frontend by GetPreview.
-// Clean/Orig are data URLs. (CropX, CropY) is where the clean image sits inside
-// the OrigW x OrigH original preview, so the compare view can stay aligned.
 type PreviewResult struct {
 	Clean string `json:"clean"`
 	Orig  string `json:"orig"`
@@ -73,11 +70,10 @@ type PreviewResult struct {
 }
 
 type previewSrc struct {
-	img  *image.NRGBA // flattened on white, capped at previewMax
-	orig string       // JPEG data URL of img (encoded once)
+	img  *image.NRGBA
+	orig string
 }
 
-// App is the Wails-bound backend.
 type App struct {
 	ctx      context.Context
 	dropOnce sync.Once
@@ -91,10 +87,6 @@ func NewApp() *App {
 	return &App{cache: make(map[string]*previewSrc)}
 }
 
-// ---------------------------------------------------------------------------
-// Lifecycle
-// ---------------------------------------------------------------------------
-
 func (a *App) OnStartup(ctx context.Context) {
 	a.ctx = ctx
 }
@@ -103,7 +95,6 @@ func (a *App) OnDomReady(ctx context.Context) {
 	if a.ctx == nil {
 		a.ctx = ctx
 	}
-	// OnDomReady can fire again on a reload; register the drop handler only once.
 	a.dropOnce.Do(func() {
 		wailsrt.OnFileDrop(ctx, func(x, y int, paths []string) {
 			defer func() { _ = recover() }()
@@ -113,14 +104,9 @@ func (a *App) OnDomReady(ctx context.Context) {
 	})
 }
 
-// GetDefaultFolder intentionally returns "" so the app always opens clean.
 func (a *App) GetDefaultFolder() string {
 	return ""
 }
-
-// ---------------------------------------------------------------------------
-// Path / file selection
-// ---------------------------------------------------------------------------
 
 func (a *App) SelectFolder() []string {
 	dir, err := wailsrt.OpenDirectoryDialog(a.ctx, wailsrt.OpenDialogOptions{
@@ -146,8 +132,6 @@ func (a *App) SelectFiles() []string {
 	return collectImages(files, 0)
 }
 
-// ResolvePath accepts a pasted path (quotes/whitespace tolerated). A folder expands to
-// its sorted images; a valid image file returns itself; anything else returns [].
 func (a *App) ResolvePath(inputPath string) []string {
 	return collectImages([]string{inputPath}, 0)
 }
@@ -158,8 +142,14 @@ func isImageExt(p string) bool {
 
 func cleanInput(s string) string {
 	s = strings.TrimSpace(s)
-	for len(s) >= 2 && ((s[0] == '"' && s[len(s)-1] == '"') || (s[0] == '\'' && s[len(s)-1] == '\'')) {
-		s = strings.TrimSpace(s[1 : len(s)-1])
+	for len(s) >= 2 {
+		first := s[0]
+		last := s[len(s)-1]
+		if (first == '"' && last == '"') || (first == '\'' && last == '\'') {
+			s = strings.TrimSpace(s[1 : len(s)-1])
+			continue
+		}
+		break
 	}
 	return s
 }
@@ -176,7 +166,6 @@ func normalizePath(raw string) string {
 	return p
 }
 
-// listImages returns the sorted, valid image files directly inside dir (non-recursive).
 func listImages(dir string) []string {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -196,12 +185,10 @@ func listImages(dir string) []string {
 	return out
 }
 
-// collectImages expands files and folders into unique absolute image paths.
-// limit <= 0 means no cap.
 func collectImages(paths []string, limit int) []string {
 	out := make([]string, 0, len(paths))
 	seen := make(map[string]struct{})
-	add := func(p string) bool { // false once the cap is reached
+	add := func(p string) bool {
 		if _, dup := seen[p]; dup {
 			return true
 		}
@@ -238,7 +225,6 @@ func fileExists(p string) bool {
 	return err == nil && !fi.IsDir()
 }
 
-// baseDir: basePath itself if it is a directory, otherwise its parent directory.
 func baseDir(basePath string) string {
 	p := normalizePath(basePath)
 	if p == "" {
@@ -249,10 +235,6 @@ func baseDir(basePath string) string {
 	}
 	return filepath.Dir(p)
 }
-
-// ---------------------------------------------------------------------------
-// Image helpers
-// ---------------------------------------------------------------------------
 
 func decodeFile(path string) (image.Image, error) {
 	f, err := os.Open(path)
@@ -285,7 +267,6 @@ func isOpaque(img image.Image) bool {
 	return ok && o.Opaque()
 }
 
-// flatten composites img over white and returns it as an opaque NRGBA at (0,0).
 func flatten(src image.Image) *image.NRGBA {
 	b := src.Bounds()
 	if n, ok := src.(*image.NRGBA); ok && b.Min == (image.Point{}) && n.Opaque() {
@@ -296,7 +277,6 @@ func flatten(src image.Image) *image.NRGBA {
 		dst.Pix[i] = 0xff
 	}
 	draw.Draw(dst, dst.Bounds(), src, b.Min, draw.Over)
-	// Fully opaque, so RGBA and NRGBA share the same byte layout.
 	return &image.NRGBA{Pix: dst.Pix, Stride: dst.Stride, Rect: dst.Rect}
 }
 
@@ -307,8 +287,6 @@ func opaqueSource(img image.Image) image.Image {
 	return flatten(img)
 }
 
-// scaleInto scales src into rectangle dr of a new cw x ch canvas and returns it as NRGBA.
-// Scaling happens in the fast premultiplied RGBA path and is un-premultiplied afterwards.
 func scaleInto(src image.Image, dr image.Rectangle, cw, ch int, k draw.Scaler) *image.NRGBA {
 	tmp := image.NewRGBA(image.Rect(0, 0, cw, ch))
 	k.Scale(tmp, dr, src, src.Bounds(), draw.Src, nil)
@@ -348,7 +326,6 @@ func fitDims(w, h, limit int) (int, int) {
 	return max(1, nw), limit
 }
 
-// loadCapped decodes a file and returns an opaque NRGBA whose longest side is <= maxDim.
 func loadCapped(path string, maxDim int) (*image.NRGBA, error) {
 	img, err := decodeFile(path)
 	if err != nil {
@@ -402,24 +379,44 @@ func clampInt(v, lo, hi int) int {
 	}
 	return v
 }
+func smooth3x3Safe(src *image.NRGBA) []uint8 {
+	w, h := src.Rect.Dx(), src.Rect.Dy()
+	pix, stride := src.Pix, src.Stride
+	tmp := make([]uint8, w*h*3)
+	out := make([]uint8, w*h*3)
 
-// ---------------------------------------------------------------------------
-// Transparency engine
-// ---------------------------------------------------------------------------
+	for y := 0; y < h; y++ {
+		row := pix[y*stride : y*stride+w*4]
+		dstRow := tmp[y*w*3 : (y+1)*w*3]
+		for x := 0; x < w; x++ {
+			xl := max(0, x-1) * 4
+			xc := x * 4
+			xr := min(w-1, x+1) * 4
+			di := x * 3
+			dstRow[di] = uint8((uint32(row[xl]) + 2*uint32(row[xc]) + uint32(row[xr]) + 2) >> 2)
+			dstRow[di+1] = uint8((uint32(row[xl+1]) + 2*uint32(row[xc+1]) + uint32(row[xr+1]) + 2) >> 2)
+			dstRow[di+2] = uint8((uint32(row[xl+2]) + 2*uint32(row[xc+2]) + uint32(row[xr+2]) + 2) >> 2)
+		}
+	}
 
-// extractImage removes the background of src and returns an NRGBA with computed alpha.
-//
-//	transparency 0..100: 0 keeps subtle tones, 100 removes background aggressively
-//	boldness     0..100: edge contrast / threshold
-//	autoCrop/formSize:   crop to the foreground bounding box (formSize also fits 600x200)
-//	upscale:             HD multiplier (CatmullRom); ignored when formSize is true
-func extractImage(src image.Image, colorMode string, transparency int, boldness int, autoCrop bool, formSize bool, upscale int) (*image.NRGBA, error) {
+	rowBytes := w * 3
+	for y := 0; y < h; y++ {
+		yt := max(0, y-1) * rowBytes
+		yc := y * rowBytes
+		yb := min(h-1, y+1) * rowBytes
+		dstRow := out[yc : yc+rowBytes]
+		for i := 0; i < rowBytes; i++ {
+			dstRow[i] = uint8((uint32(tmp[yt+i]) + 2*uint32(tmp[yc+i]) + uint32(tmp[yb+i]) + 2) >> 2)
+		}
+	}
+	return out
+}
+
+func extractImage(src image.Image, colorMode string, transparency, boldness int, autoCrop, formSize bool, upscale int) (*image.NRGBA, error) {
 	img, _, err := extractWithCrop(src, colorMode, transparency, boldness, autoCrop, formSize, upscale)
 	return img, err
 }
 
-// extractWithCrop is extractImage plus the crop rectangle (in source pixels) that
-// was applied, which the live preview uses to keep the original aligned.
 func extractWithCrop(src image.Image, colorMode string, transparency, boldness int, autoCrop, formSize bool, upscale int) (*image.NRGBA, image.Rectangle, error) {
 	if src == nil {
 		return nil, image.Rectangle{}, errors.New("No image to process")
@@ -438,43 +435,55 @@ func extractWithCrop(src image.Image, colorMode string, transparency, boldness i
 	}
 	full := image.Rect(0, 0, w, h)
 
-	// 1) Luminance (Rec. 601).
-	pix, stride := img.Pix, img.Stride
-	lum := make([]uint8, w*h)
-	for y := 0; y < h; y++ {
-		row := pix[y*stride : y*stride+w*4]
-		o := y * w
-		for x := 0; x < w; x++ {
-			i := x * 4
-			lum[o+x] = uint8((299*uint32(row[i]) + 587*uint32(row[i+1]) + 114*uint32(row[i+2]) + 500) / 1000)
-		}
-	}
+	smoothed := smooth3x3Safe(img)
 
-	// 2) Summed-area table (integral image) for O(1) local-mean lookups.
 	sw := w + 1
-	sat := make([]uint32, sw*(h+1))
+	satR := make([]uint64, sw*(h+1))
+	satG := make([]uint64, sw*(h+1))
+	satB := make([]uint64, sw*(h+1))
 	for y := 0; y < h; y++ {
-		var rowSum uint32
-		o := y * w
+		var rowR, rowG, rowB uint64
+		rowOff := y * w * 3
 		above := y * sw
 		cur := (y + 1) * sw
 		for x := 0; x < w; x++ {
-			rowSum += uint32(lum[o+x])
-			sat[cur+x+1] = sat[above+x+1] + rowSum
+			si := rowOff + x*3
+			rowR += uint64(smoothed[si])
+			rowG += uint64(smoothed[si+1])
+			rowB += uint64(smoothed[si+2])
+			satR[cur+x+1] = satR[above+x+1] + rowR
+			satG[cur+x+1] = satG[above+x+1] + rowG
+			satB[cur+x+1] = satB[above+x+1] + rowB
 		}
 	}
 
-	// 3) Slider mapping.
-	tf := float32(transparency) / 100
-	bf := float32(boldness) / 100
-	ceilL := 252 - tf*22        // normalized luminance at/above which a pixel is background
-	minAlpha := 8 + tf*56       // alpha noise floor
-	thresh := 185 + bf*45       // luminance at/below which ink is fully opaque
-	span := ceilL - thresh      // soft edge width between "solid" and "background"
-	if span < 1 {
-		span = 1 // extreme settings collapse to a hard edge; never divide by zero
-	}
+	tf := float64(transparency) / 100.0
+	bf := float64(boldness) / 100.0
 
+	ceilRatio := 0.988 - tf*0.088
+	solidRatio := 0.725 + bf*0.180
+	span := ceilRatio - solidRatio
+	if span < 0.004 {
+		span = 0.004
+	}
+	minAlpha := min(0.90, 0.03+tf*0.22)
+	gamma := 1.15 - bf*0.55
+
+	const lutMax = 4095
+	var alphaLUT [lutMax + 1]uint8
+	for i := 0; i <= lutMax; i++ {
+		ratio := float64(i) / float64(lutMax)
+		if ratio >= ceilRatio {
+			continue
+		}
+		a := clampFloat((ceilRatio-ratio)/span, 0.0, 1.0)
+		a = math.Pow(a, gamma)
+		if a <= minAlpha {
+			continue
+		}
+		a = clampFloat((a-minAlpha)/(1.0-minAlpha), 0.0, 1.0)
+		alphaLUT[i] = uint8(min(255, int(a*255.0+0.5)))
+	}
 	var cr, cg, cb uint8
 	useOrig := true
 	switch colorMode {
@@ -484,44 +493,56 @@ func extractWithCrop(src image.Image, colorMode string, transparency, boldness i
 		useOrig, cr, cg, cb = false, 15, 55, 195
 	}
 
-	// 4) Adaptive local-background normalization + alpha.
 	out := image.NewNRGBA(full)
 	op := out.Pix
+	pix, stride := img.Pix, img.Stride
 	minX, minY, maxX, maxY := w, h, -1, -1
 
 	for y := 0; y < h; y++ {
 		y0 := max(0, y-bgRadius)
 		y1 := min(h, y+bgRadius+1)
+		rowY0 := y0 * sw
+		rowY1 := y1 * sw
+		smoothRow := y * w * 3
+		srcRow := y * stride
+		outRow := y * out.Stride
+
 		for x := 0; x < w; x++ {
 			x0 := max(0, x-bgRadius)
 			x1 := min(w, x+bgRadius+1)
-			area := (x1 - x0) * (y1 - y0)
-			sum := sat[y1*sw+x1] - sat[y0*sw+x1] - sat[y1*sw+x0] + sat[y0*sw+x0]
-			mean := float32(sum) / float32(area)
-			if mean < 1 {
-				mean = 1
-			}
-			n := float32(lum[y*w+x]) * 255 / mean
-			if n >= ceilL {
-				continue
-			}
-			a := (ceilL - n) / span * 255
-			if a > 255 {
-				a = 255
-			}
-			if a < minAlpha {
-				continue
-			}
-			a = (a - minAlpha) / (255 - minAlpha) * 255
-			ai := uint8(a + 0.5)
+			area := float32((x1 - x0) * (y1 - y0))
+
+			idx11 := rowY1 + x1
+			idx01 := rowY0 + x1
+			idx10 := rowY1 + x0
+			idx00 := rowY0 + x0
+
+			bgR := max(float32(1.0), float32(satR[idx11]-satR[idx01]-satR[idx10]+satR[idx00])/area)
+			bgG := max(float32(1.0), float32(satG[idx11]-satG[idx01]-satG[idx10]+satG[idx00])/area)
+			bgB := max(float32(1.0), float32(satB[idx11]-satB[idx01]-satB[idx10]+satB[idx00])/area)
+
+			si := smoothRow + x*3
+			minRatio := min(float32(smoothed[si])/bgR, min(float32(smoothed[si+1])/bgG, float32(smoothed[si+2])/bgB))
+
+			lutIdx := clampInt(int(minRatio*float32(lutMax)+0.5), 0, lutMax)
+			ai := alphaLUT[lutIdx]
 			if ai == 0 {
 				continue
 			}
 
-			o := (y*w + x) * 4
+			o := outRow + x*4
 			if useOrig {
-				s := y*stride + x*4
-				op[o], op[o+1], op[o+2] = pix[s], pix[s+1], pix[s+2]
+				s := srcRow + x*4
+				if ai == 255 {
+					op[o], op[o+1], op[o+2] = pix[s], pix[s+1], pix[s+2]
+				} else {
+					a := float32(ai) / 255.0
+					invA := 1.0 - a
+					recipA := 1.0 / a
+					op[o] = uint8(clampFloat32((float32(pix[s])-bgR*invA)*recipA, 0, 255) + 0.5)
+					op[o+1] = uint8(clampFloat32((float32(pix[s+1])-bgG*invA)*recipA, 0, 255) + 0.5)
+					op[o+2] = uint8(clampFloat32((float32(pix[s+2])-bgB*invA)*recipA, 0, 255) + 0.5)
+				}
 			} else {
 				op[o], op[o+1], op[o+2] = cr, cg, cb
 			}
@@ -532,8 +553,6 @@ func extractWithCrop(src image.Image, colorMode string, transparency, boldness i
 		}
 	}
 
-	// 5) Nothing left? Return a clean transparent image, never an error, so live
-	//    previews do not flash red while sliders are dragged to extremes.
 	if maxX < 0 {
 		if formSize {
 			return image.NewNRGBA(image.Rect(0, 0, formW, formH)), full, nil
@@ -541,7 +560,6 @@ func extractWithCrop(src image.Image, colorMode string, transparency, boldness i
 		return image.NewNRGBA(image.Rect(0, 0, w, h)), full, nil
 	}
 
-	// 6) Framing: crop only on request; otherwise keep the exact frame.
 	crop := full
 	res := out
 	if autoCrop || formSize {
@@ -549,7 +567,6 @@ func extractWithCrop(src image.Image, colorMode string, transparency, boldness i
 		res = cropNRGBA(out, crop)
 	}
 
-	// 7) Output sizing.
 	cw, ch := res.Rect.Dx(), res.Rect.Dy()
 	if formSize {
 		sc := math.Min(float64(formW)/float64(cw), float64(formH)/float64(ch))
@@ -563,10 +580,13 @@ func extractWithCrop(src image.Image, colorMode string, transparency, boldness i
 	return res, crop, nil
 }
 
-// ---------------------------------------------------------------------------
-// Thumbnails and live preview
-// ---------------------------------------------------------------------------
+func clampFloat(v, lo, hi float64) float64 {
+	return max(lo, min(hi, v))
+}
 
+func clampFloat32(v, lo, hi float32) float32 {
+	return max(lo, min(hi, v))
+}
 func (a *App) GetThumb(filePath string) (url string) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -596,7 +616,6 @@ func (a *App) GetThumb(filePath string) (url string) {
 	return out
 }
 
-// previewSource returns the cached, flattened <=900px version of a photo.
 func (a *App) previewSource(path string) (*previewSrc, error) {
 	fi, err := os.Stat(path)
 	if err != nil || fi.IsDir() {
@@ -626,7 +645,10 @@ func (a *App) previewSource(path string) (*previewSrc, error) {
 		a.cache[key] = ps
 		a.order = append(a.order, key)
 		for len(a.order) > previewCacheMax {
-			delete(a.cache, a.order[0])
+			for _, oldestKey := range a.order {
+				delete(a.cache, oldestKey)
+				break
+			}
 			a.order = a.order[1:]
 		}
 	}
@@ -634,7 +656,6 @@ func (a *App) previewSource(path string) (*previewSrc, error) {
 	return ps, nil
 }
 
-// GetPreview renders the fast live preview (source capped at 900px, upscale = 1).
 func (a *App) GetPreview(filePath, colorMode string, transparency, boldness int, autoCrop bool) (res PreviewResult) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -670,10 +691,6 @@ func (a *App) GetPreview(filePath, colorMode string, transparency, boldness int,
 	}
 }
 
-// ---------------------------------------------------------------------------
-// HD export
-// ---------------------------------------------------------------------------
-
 func savePNGUnique(outDir, stem string, img *image.NRGBA) (string, error) {
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return "", err
@@ -684,7 +701,6 @@ func savePNGUnique(outDir, stem string, img *image.NRGBA) (string, error) {
 			name = fmt.Sprintf("%s_PhotoBG_%d.png", stem, i)
 		}
 		p := filepath.Join(outDir, name)
-		// O_EXCL makes the name claim atomic, so parallel workers can never collide.
 		f, err := os.OpenFile(p, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
 		if err != nil {
 			if errors.Is(err, os.ErrExist) {
@@ -727,7 +743,6 @@ func exportOne(path, outDir, colorMode string, transparency, boldness int, autoC
 	return savePNGUnique(outDir, stem, out)
 }
 
-// SaveOne exports the current photo as a 3x HD PNG into <photo folder>/PhotoBG_Output.
 func (a *App) SaveOne(filePath, colorMode string, transparency, boldness int, autoCrop, formSize bool) (msg string) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -746,7 +761,6 @@ func (a *App) SaveOne(filePath, colorMode string, transparency, boldness int, au
 	return "Saved " + filepath.Base(saved) + " to " + outDirName
 }
 
-// ProcessBatch exports every queued photo with a bounded worker pool, then opens the folder.
 func (a *App) ProcessBatch(filePaths []string, colorMode string, transparency, boldness int, autoCrop, formSize bool) (msg string) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -768,7 +782,12 @@ func (a *App) ProcessBatch(filePaths []string, colorMode string, transparency, b
 		return "Error: No valid photos in the queue"
 	}
 
-	outDir := filepath.Join(filepath.Dir(valid[0]), outDirName)
+	var firstPath string
+	for _, p := range valid {
+		firstPath = p
+		break
+	}
+	outDir := filepath.Join(filepath.Dir(firstPath), outDirName)
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return "Error: " + err.Error()
 	}
@@ -814,10 +833,6 @@ func (a *App) ProcessBatch(filePaths []string, colorMode string, transparency, b
 	return fmt.Sprintf("Processed %d photos to %s", ok, outDirName)
 }
 
-// ---------------------------------------------------------------------------
-// Output folder and ZIP
-// ---------------------------------------------------------------------------
-
 func openDirectory(dir string) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
@@ -831,7 +846,7 @@ func openDirectory(dir string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	go func() { _ = cmd.Wait() }() // reap the process; explorer exits non-zero even on success
+	go func() { _ = cmd.Wait() }()
 	return nil
 }
 
@@ -857,7 +872,6 @@ func addFileToZip(zw *zip.Writer, path, name string) error {
 	if err != nil {
 		return err
 	}
-	// PNGs are already compressed, so Store is faster and no larger.
 	w, err := zw.CreateHeader(&zip.FileHeader{Name: name, Method: zip.Store, Modified: fi.ModTime()})
 	if err != nil {
 		return err
@@ -866,8 +880,6 @@ func addFileToZip(zw *zip.Writer, path, name string) error {
 	return err
 }
 
-// ExportZip bundles <folder>/PhotoBG_Output/*.png into <folder>/PhotoBG_Export.zip.
-// The archive is written to a temp file and only moved into place once fully closed.
 func (a *App) ExportZip(basePath string) (msg string) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -923,7 +935,6 @@ func (a *App) ExportZip(basePath string) (msg string) {
 
 	final := filepath.Join(dir, zipFileName)
 	if err := os.Rename(tmpName, final); err != nil {
-		// Target is locked or unwritable (e.g. open in another program): use a numbered name.
 		placed := false
 		for i := 1; i < 1000 && !placed; i++ {
 			alt := filepath.Join(dir, fmt.Sprintf("PhotoBG_Export_%d.zip", i))
