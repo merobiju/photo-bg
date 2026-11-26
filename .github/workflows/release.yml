@@ -102,7 +102,7 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           CGO_CFLAGS: ${{ matrix.cgo_flags }}
-          CGO_LDFLAGS: ${{ matrix.cgo_flags }}
+          CGO_LDFLAGS: ${{ runner.os == 'macOS' && format('{0} -framework Cocoa -framework WebKit', matrix.cgo_flags) || matrix.cgo_flags }}
         run: |
           mkdir -p dist_pkg
           go build -tags "${{ matrix.tags }}" -ldflags "${{ matrix.ldflags }}" -o "dist_pkg/Photo_BG${{ matrix.ext }}" .
