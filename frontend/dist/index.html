@@ -30,7 +30,6 @@
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
   color-scheme:dark;
 }
-
 /* ===== Base ===== */
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -72,7 +71,6 @@ button{font-family:inherit}
 }
 .path-input::placeholder{color:var(--text2)}
 .path-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
-
 .btn{
   height:34px;padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--hair);
   background:var(--card);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;
@@ -95,7 +93,6 @@ button{font-family:inherit}
 .icon-sun{display:none}
 :root[data-theme="dark"] .icon-sun{display:block}
 :root[data-theme="dark"] .icon-moon{display:none}
-
 /* ===== Workspace ===== */
 .workspace{
   flex:1;min-height:0;display:grid;grid-template-columns:250px 1fr 290px;gap:12px;padding:12px 12px 52px;
@@ -112,7 +109,6 @@ button{font-family:inherit}
 .link-btn{border:0;background:none;color:var(--blue);font-size:13px;font-weight:500;cursor:pointer;padding:2px 4px;border-radius:6px}
 .link-btn:hover{background:var(--blue-soft)}
 .link-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
-
 /* Queue */
 .file-list{flex:1;min-height:0;overflow-y:auto;padding:2px 8px 10px}
 .item{
@@ -131,7 +127,6 @@ button{font-family:inherit}
 }
 .item:hover .item-remove,.item-remove:focus-visible{opacity:1}
 .item-remove:hover{background:var(--red);color:#fff}
-
 /* Stage */
 .canvas-toolbar{
   flex:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;
@@ -152,7 +147,6 @@ button{font-family:inherit}
 }
 .mini:hover{background:var(--track)}
 #zoomLbl{min-width:42px;text-align:center;font-size:12px;color:var(--text2)}
-
 .compare-box{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:none;cursor:default}
 .bg-checker{
   background-color:var(--check-a);
@@ -168,7 +162,6 @@ button{font-family:inherit}
 .compare-box.has-image.panning{cursor:grabbing}
 body:has(.wails-drop-target-active) #compareBox{box-shadow:inset 0 0 0 3px var(--blue)}
 body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)}
-
 .stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;display:none}
 .has-image .stage{display:block}
 .stage img{position:absolute;display:block;max-width:none;pointer-events:none;-webkit-user-drag:none}
@@ -194,7 +187,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
   backdrop-filter:blur(14px) saturate(180%);-webkit-backdrop-filter:blur(14px) saturate(180%);
   box-shadow:0 2px 10px rgba(0,0,0,.25);
 }
-
 .empty-state{
   position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:6px;text-align:center;padding:24px;pointer-events:none;z-index:4;
@@ -246,7 +238,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
 .util-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btn.secondary{background:var(--elev);border-color:transparent}
 .btn.secondary:hover{background:var(--track)}
-
 /* Floating status pill */
 .status{
   position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:50;max-width:min(760px,calc(100vw - 48px));
@@ -281,33 +272,40 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
 </head>
 <body>
 <div class="app">
-
   <!-- ===== Header ===== -->
   <header class="topbar">
-        <div class="brand">
+    <div class="brand">
       <svg class="brand-icon" viewBox="0 0 100 100" width="30" height="30" aria-hidden="true">
-        <g stroke="#18191C" stroke-width="26" stroke-linecap="round">
-          <line x1="50" y1="22" x2="50" y2="78"/>
-          <line x1="22" y1="50" x2="78" y2="50"/>
-          <line x1="30.2" y1="30.2" x2="69.8" y2="69.8"/>
-          <line x1="69.8" y1="30.2" x2="30.2" y2="69.8"/>
-        </g>
-        <g stroke="#FFB03A" stroke-width="7.5" stroke-linecap="round">
-          <line x1="50" y1="22" x2="50" y2="78"/>
-          <line x1="22" y1="50" x2="78" y2="50"/>
-          <line x1="30.2" y1="30.2" x2="69.8" y2="69.8"/>
-          <line x1="69.8" y1="30.2" x2="30.2" y2="69.8"/>
-        </g>
-        <g fill="#FFB03A">
-          <circle cx="50" cy="50" r="10"/>
-          <circle cx="50" cy="22" r="6.8"/>
-          <circle cx="50" cy="78" r="6.8"/>
-          <circle cx="22" cy="50" r="6.8"/>
-          <circle cx="78" cy="50" r="6.8"/>
-          <circle cx="30.2" cy="30.2" r="6.8"/>
-          <circle cx="69.8" cy="69.8" r="6.8"/>
-          <circle cx="69.8" cy="30.2" r="6.8"/>
-          <circle cx="30.2" cy="69.8" r="6.8"/>
+        <defs>
+          <linearGradient id="gold3d" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FEF08A">
+              <animate attributeName="stop-color" values="#FEF08A;#FACC15;#FFFFFF;#FEF08A" dur="3.5s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="55%" stop-color="#FACC15"/>
+            <stop offset="100%" stop-color="#CA8A04"/>
+          </linearGradient>
+        </defs>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="28s" repeatCount="indefinite"/>
+          <g stroke="#18191C" stroke-width="24" stroke-linecap="round">
+            <line x1="50" y1="22" x2="50" y2="78"/>
+            <line x1="22" y1="50" x2="78" y2="50"/>
+            <line x1="30.2" y1="30.2" x2="69.8" y2="69.8"/>
+            <line x1="69.8" y1="30.2" x2="30.2" y2="69.8"/>
+          </g>
+          <g stroke="url(#gold3d)" stroke-width="8" stroke-linecap="round">
+            <line x1="50" y1="22" x2="50" y2="78"/>
+            <line x1="22" y1="50" x2="78" y2="50"/>
+            <line x1="30.2" y1="30.2" x2="69.8" y2="69.8"/>
+            <line x1="69.8" y1="30.2" x2="30.2" y2="69.8"/>
+          </g>
+          <g fill="url(#gold3d)">
+            <circle cx="50" cy="50" r="11"/>
+            <circle cx="50" cy="22" r="6.8"/><circle cx="50" cy="78" r="6.8"/>
+            <circle cx="22" cy="50" r="6.8"/><circle cx="78" cy="50" r="6.8"/>
+            <circle cx="30.2" cy="30.2" r="6.8"/><circle cx="69.8" cy="69.8" r="6.8"/>
+            <circle cx="69.8" cy="30.2" r="6.8"/><circle cx="30.2" cy="69.8" r="6.8"/>
+          </g>
         </g>
       </svg>
       <span class="brand-name">Photo BG</span>
@@ -325,7 +323,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
       </button>
     </div>
   </header>
-
   <!-- ===== Workspace ===== -->
   <main class="workspace">
 
@@ -375,7 +372,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
         <div id="sliderLine" class="slider-line"><div class="handle">&harr;</div></div>
       </div>
     </section>
-
     <!-- Studio controls -->
     <aside class="panel controls">
       <div class="controls-inner">
@@ -393,18 +389,15 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
           <input id="transSlider" class="ios-range" type="range" min="0" max="100" step="1" value="50" aria-label="Transparency">
           <div class="hint">Higher removes more background</div>
         </div>
-
         <div>
           <div class="ctl-row"><span class="ctl-label">Edge Boldness</span><span id="boldVal" class="val">50%</span></div>
           <input id="boldSlider" class="ios-range" type="range" min="0" max="100" step="1" value="50" aria-label="Edge boldness">
           <div class="hint">Higher makes edges crisper and bolder</div>
         </div>
-
         <div class="group">
           <label class="toggle"><span>Trim Empty Edges (Auto-Crop)</span><input type="checkbox" id="autoCrop"><span class="switch"></span></label>
           <label class="toggle"><span>Resize for Forms (600&times;200)</span><input type="checkbox" id="formSize"><span class="switch"></span></label>
         </div>
-
         <div class="actions">
           <button id="btnProcessAll" class="btn primary block cta" type="button">Process All Images</button>
           <button id="btnSaveOne" class="btn secondary block" type="button">Save Current PNG</button>
@@ -416,17 +409,11 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
       </div>
     </aside>
   </main>
-
   <div id="statusText" class="status" data-kind="idle" role="status" aria-live="polite">Ready</div>
 </div>
-
 <script>
 (() => {
 "use strict";
-
-/* =====================================================================
-   DOM + constants
-   ===================================================================== */
 const $ = (id) => document.getElementById(id);
 const el = {
   pathInput: $("pathInput"), btnFiles: $("btnFiles"), btnFolder: $("btnFolder"), themeToggle: $("themeToggle"),
@@ -440,7 +427,6 @@ const el = {
   btnSaveOne: $("btnSaveOne"), btnProcessAll: $("btnProcessAll"), btnOpenOut: $("btnOpenOut"),
   btnExportZip: $("btnExportZip"), statusText: $("statusText"),
 };
-
 const HINT = "Ready \u00B7 Ctrl/\u2318+O files \u00B7 Ctrl/\u2318+Shift+O folder \u00B7 Space+drag to pan";
 const THEME_KEY = "photobg-theme";
 const ZMIN = 0.25, ZMAX = 6;
@@ -448,13 +434,8 @@ const THUMB_CONCURRENCY = 4;
 const CACHE_MAX = 30;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const baseName = (p) => String(p).split(/[\\/]/).pop();
-
 // Every Go call goes through backend() => window.go.main.App
 const backend = () => (window.go && window.go.main && window.go.main.App) || null;
-
-/* =====================================================================
-   Status pill
-   ===================================================================== */
 let statusTimer = 0;
 function setStatus(text, kind = "idle") {
   el.statusText.textContent = text;
@@ -467,10 +448,6 @@ function setStatus(text, kind = "idle") {
     }, kind === "err" ? 9000 : 6000);
   }
 }
-
-/* =====================================================================
-   Theme
-   ===================================================================== */
 function setTheme(theme, persist) {
   document.documentElement.setAttribute("data-theme", theme);
   el.themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
@@ -493,10 +470,6 @@ function initTheme() {
     });
   }
 }
-
-/* =====================================================================
-   App state
-   ===================================================================== */
 const state = { color: "original", trans: 50, bold: 50, autoCrop: false, formSize: false };
 let queuePaths = [];
 let activeIndex = -1;
@@ -505,10 +478,6 @@ let canvasMode = "compare";
 let spaceDown = false;
 
 const itemEls = new Map(); // path -> DOM node
-
-/* =====================================================================
-   Queue UI
-   ===================================================================== */
 function updateButtons() {
   const has = queuePaths.length > 0;
   el.btnSaveOne.disabled = !has || isBusy;
@@ -523,7 +492,6 @@ function updateQueueUI() {
   el.emptyState.classList.toggle("hidden", queuePaths.length > 0);
   updateButtons();
 }
-
 function buildItem(path) {
   const node = document.createElement("div");
   node.className = "item";
@@ -578,7 +546,6 @@ function pumpThumbs() {
     })();
   }
 }
-
 function addPathsToQueue(newPaths) {
   if (!Array.isArray(newPaths) || newPaths.length === 0) return 0;
   const have = new Set(queuePaths);
@@ -602,7 +569,6 @@ function addPathsToQueue(newPaths) {
   setStatus("Added " + fresh.length + " photo" + (fresh.length === 1 ? "" : "s") + " to the queue.", "ok");
   return fresh.length;
 }
-
 function selectIndex(i) {
   if (i < 0 || i >= queuePaths.length) return;
   activeIndex = i;
@@ -614,7 +580,6 @@ function selectIndex(i) {
   pendingFit = true;   // fit the new photo to the stage
   runPreview();
 }
-
 function removePath(path) {
   const idx = queuePaths.indexOf(path);
   if (idx < 0) return;
@@ -634,7 +599,6 @@ function removePath(path) {
   }
   updateQueueUI();
 }
-
 function clearQueue() {
   queuePaths = [];
   activeIndex = -1;
@@ -650,16 +614,11 @@ function clearQueue() {
   updateQueueUI();
   setStatus(HINT, "idle");
 }
-
 function navigate(delta) {
   if (!queuePaths.length) return;
   const next = clamp((activeIndex < 0 ? 0 : activeIndex) + delta, 0, queuePaths.length - 1);
   if (next !== activeIndex) selectIndex(next);
 }
-
-/* =====================================================================
-   Viewer: zoom / pan / before-after split
-   ===================================================================== */
 let zoom = 1, panX = 0, panY = 0, imgW = 0, imgH = 0;
 let hasImage = false, autoFit = true, splitFrac = 0.5;
 let lastClean = "", lastOrig = "";
@@ -707,7 +666,6 @@ function clearViewer() {
   zoom = 1; panX = panY = 0; autoFit = true;
   el.zoomLbl.textContent = "100%";
 }
-
 /* Canvas interaction */
 function setMode(mode) {
   canvasMode = mode;
@@ -775,16 +733,11 @@ function bindCanvas() {
     new ResizeObserver(() => { if (hasImage && autoFit) fitView(); else { applyTransform(); } }).observe(box);
   }
 }
-
-/* =====================================================================
-   Preview pipeline: sequence guard + in-flight limiter + LRU cache
-   ===================================================================== */
 let reqSeq = 0;
 let inFlight = false;
 let dirty = false;
 let pendingFit = false;
 const previewCache = new Map();
-
 const cacheKey = (p) => p + "|" + state.color + "|" + state.trans + "|" + state.bold + "|" + state.autoCrop;
 function cacheGet(k) {
   if (!previewCache.has(k)) return null;
@@ -798,7 +751,6 @@ function cacheSet(k, v) {
   previewCache.set(k, v);
   while (previewCache.size > CACHE_MAX) previewCache.delete(previewCache.keys().next().value);
 }
-
 async function paint(res, mySeq) {
   // Decode off-screen first so both layers swap in the same frame (no flicker).
   const jobs = [];
@@ -806,7 +758,6 @@ async function paint(res, mySeq) {
   if (res.orig !== lastOrig) { const b = new Image(); b.src = res.orig; jobs.push(b.decode().catch(() => {})); }
   if (jobs.length) await Promise.all(jobs);
   if (mySeq !== reqSeq) return;     // stale frame: discard
-
   const fit = pendingFit;
   pendingFit = false;
   imgW = res.w; imgH = res.h;
@@ -819,18 +770,15 @@ async function paint(res, mySeq) {
   o.top = -res.cropY + "px";
   o.width = res.origW + "px";
   o.height = res.origH + "px";
-
   const first = !hasImage;
   hasImage = true;
   el.compareBox.classList.add("has-image");
   if (fit || first || autoFit) fitView(); else applyTransform();
 }
-
 async function runPreview() {
   const path = queuePaths[activeIndex];
   const b = backend();
   if (!path || !b) return;
-
   const key = cacheKey(path);
   const cached = cacheGet(key);
   if (cached) {                     // 0ms path: already rendered before
@@ -840,7 +788,6 @@ async function runPreview() {
     return;
   }
   if (inFlight) { dirty = true; return; }   // only one Go call at a time; latest state wins
-
   const mySeq = ++reqSeq;
   inFlight = true;
   try {
@@ -860,8 +807,6 @@ async function runPreview() {
     if (dirty) { dirty = false; runPreview(); }
   }
 }
-
-/* RAF-throttled slider input */
 let rafPending = false;
 function schedulePreview() {
   if (rafPending) return;
@@ -874,13 +819,8 @@ function updateSliderUI() {
   el.transSlider.style.setProperty("--p", state.trans + "%");
   el.boldSlider.style.setProperty("--p", state.bold + "%");
 }
-
-/* =====================================================================
-   Actions
-   ===================================================================== */
 function setBusy(b) { isBusy = b; updateButtons(); }
 const isErr = (m) => typeof m === "string" && /^Error/i.test(m);
-
 async function pickFiles() {
   const b = backend(); if (!b) return;
   try { const p = await b.SelectFiles(); if (p && p.length) addPathsToQueue(p); }
@@ -908,7 +848,6 @@ function onFilesDropped(paths) {
   if (!paths || !paths.length) { setStatus("No supported photos in what you dropped.", "err"); return; }
   addPathsToQueue(paths);
 }
-
 async function saveCurrent() {
   const b = backend();
   if (!b || isBusy || activeIndex < 0) return;
@@ -954,10 +893,6 @@ async function exportZip() {
   } catch (err) { setStatus("ZIP export failed: " + ((err && err.message) || err), "err"); }
   finally { setBusy(false); }
 }
-
-/* =====================================================================
-   Wiring
-   ===================================================================== */
 function bindUI() {
   el.btnFiles.addEventListener("click", pickFiles);
   el.btnFolder.addEventListener("click", pickFolder);
@@ -966,10 +901,8 @@ function bindUI() {
   el.btnProcessAll.addEventListener("click", processAll);
   el.btnOpenOut.addEventListener("click", openOut);
   el.btnExportZip.addEventListener("click", exportZip);
-
   el.pathInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submitPath(); } });
   el.pathInput.addEventListener("paste", () => setTimeout(submitPath, 0));
-
   // Queue: select item or remove it (event delegation)
   el.fileList.addEventListener("click", (e) => {
     const item = e.target.closest(".item");
@@ -979,7 +912,6 @@ function bindUI() {
     const i = queuePaths.indexOf(path);
     if (i >= 0 && i !== activeIndex) selectIndex(i);
   });
-
   // Preview background swatches
   el.bgSeg.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-bg]");
@@ -988,14 +920,12 @@ function bindUI() {
     el.compareBox.classList.remove("bg-checker", "bg-white", "bg-dark");
     el.compareBox.classList.add("bg-" + btn.dataset.bg);
   });
-
   // Canvas mode + zoom
   el.modeCompare.addEventListener("click", () => setMode("compare"));
   el.modeMove.addEventListener("click", () => setMode("move"));
   el.zoomIn.addEventListener("click", () => zoomBy(1.25));
   el.zoomOut.addEventListener("click", () => zoomBy(0.8));
   el.zoomFit.addEventListener("click", fitView);
-
   // Studio controls
   el.colorSeg.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-color]");
@@ -1011,9 +941,7 @@ function bindUI() {
     state.formSize = el.formSize.checked;
     setStatus(state.formSize ? "Form size (600\u00D7200) is applied when you save or process." : HINT, "idle");
   });
-
   bindCanvas();
-
   // Keyboard shortcuts (ignored while typing in the path box)
   window.addEventListener("keydown", (e) => {
     const ae = document.activeElement;
@@ -1049,10 +977,6 @@ function bindUI() {
   window.addEventListener("dragover", (e) => e.preventDefault());
   window.addEventListener("drop", (e) => e.preventDefault());
 }
-
-/* =====================================================================
-   Startup
-   ===================================================================== */
 function waitFor(test, timeoutMs) {
   return new Promise((resolve) => {
     const t0 = performance.now();
@@ -1063,26 +987,22 @@ function waitFor(test, timeoutMs) {
     })();
   });
 }
-
 async function init() {
   initTheme();
   bindUI();
   updateSliderUI();
   updateQueueUI();
   setStatus("Starting\u2026", "busy");
-
   const ready = await waitFor(() => !!backend(), 10000);
   if (!ready) { setStatus("The Photo BG engine did not start. Please restart the app.", "err"); return; }
   await waitFor(() => !!(window.runtime && typeof window.runtime.EventsOn === "function"), 3000);
   if (window.runtime && window.runtime.EventsOn) window.runtime.EventsOn("files-dropped", (paths) => onFilesDropped(paths));
-
   try {
     const def = await backend().GetDefaultFolder();   // returns "" so the app always starts clean
     if (def) addPathsToQueue((await backend().ResolvePath(def)) || []);
   } catch (err) { /* start clean */ }
   setStatus(HINT, "idle");
 }
-
 init();
 })();
 </script>
