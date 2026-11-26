@@ -21,6 +21,7 @@ jobs:
             ext: .exe
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
+            cgo_flags: ""
             artifact: Photo_BG_Windows_x64_Portable
           - os: windows-latest
             goos: windows
@@ -29,6 +30,7 @@ jobs:
             ext: .exe
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
+            cgo_flags: ""
             artifact: Photo_BG_Windows_x86_32bit
           - os: windows-latest
             goos: windows
@@ -37,6 +39,7 @@ jobs:
             ext: .exe
             tags: "desktop,production,native_webview2loader"
             ldflags: "-H=windowsgui -s -w"
+            cgo_flags: ""
             artifact: Photo_BG_Windows_ARM64
           - os: macos-latest
             goos: darwin
@@ -45,6 +48,7 @@ jobs:
             ext: ""
             tags: "desktop,production"
             ldflags: "-s -w"
+            cgo_flags: "-arch arm64"
             artifact: Photo_BG_macOS_AppleSilicon_M1_M4
           - os: macos-latest
             goos: darwin
@@ -53,6 +57,7 @@ jobs:
             ext: ""
             tags: "desktop,production"
             ldflags: "-s -w"
+            cgo_flags: "-arch x86_64"
             artifact: Photo_BG_macOS_Intel_x64
           - os: ubuntu-24.04
             goos: linux
@@ -61,6 +66,7 @@ jobs:
             ext: ""
             tags: "desktop,production,webkit2_41"
             ldflags: "-s -w"
+            cgo_flags: ""
             artifact: Photo_BG_Linux_Ubuntu_Debian_x64
           - os: ubuntu-24.04
             goos: linux
@@ -69,6 +75,7 @@ jobs:
             ext: ""
             tags: "desktop,production,webkit2_41"
             ldflags: "-s -w"
+            cgo_flags: ""
             artifact: Photo_BG_Linux_Fedora_Arch_x64
 
     runs-on: ${{ matrix.os }}
@@ -94,6 +101,8 @@ jobs:
           CGO_ENABLED: ${{ matrix.cgo }}
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
+          CGO_CFLAGS: ${{ matrix.cgo_flags }}
+          CGO_LDFLAGS: ${{ matrix.cgo_flags }}
         run: |
           mkdir -p dist_pkg
           go build -tags "${{ matrix.tags }}" -ldflags "${{ matrix.ldflags }}" -o "dist_pkg/Photo_BG${{ matrix.ext }}" .
@@ -114,6 +123,7 @@ jobs:
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
+          fail_on_unmatched_files: false
           files: |
             ${{ matrix.artifact }}.zip
             ${{ matrix.artifact }}.tar.gz
