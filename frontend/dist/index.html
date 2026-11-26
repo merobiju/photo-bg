@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Photo BG</title>
 <style>
-/* ===== Apple color system ===== */
 :root{
   --bg:#F5F5F7; --card:#FFFFFF; --elev:#F2F2F7; --hair:rgba(0,0,0,.08);
   --text:#1D1D1F; --text2:#6E6E73;
@@ -30,14 +29,13 @@
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
   color-scheme:dark;
 }
-/* ===== Base ===== */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0; font-family:var(--font); font-size:13px; line-height:1.35;
   background:var(--bg); color:var(--text); overflow:hidden;
   -webkit-font-smoothing:antialiased; user-select:none; -webkit-user-select:none;
-  --wails-drop-target:drop; /* whole window accepts native file drops */
+  --wails-drop-target:drop;
   transition:background-color .2s ease,color .2s ease;
 }
 input[type=text]{user-select:text;-webkit-user-select:text}
@@ -47,10 +45,7 @@ button{font-family:inherit}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:var(--track);border-radius:8px;border:3px solid transparent;background-clip:content-box}
 ::-webkit-scrollbar-track{background:transparent}
-
 .app{display:flex;flex-direction:column;height:100vh}
-
-/* ===== Top bar ===== */
 .topbar{
   flex:none;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;
   padding:0 16px;background:var(--card);border-bottom:1px solid var(--hair);
@@ -93,7 +88,6 @@ button{font-family:inherit}
 .icon-sun{display:none}
 :root[data-theme="dark"] .icon-sun{display:block}
 :root[data-theme="dark"] .icon-moon{display:none}
-/* ===== Workspace ===== */
 .workspace{
   flex:1;min-height:0;display:grid;grid-template-columns:250px 1fr 290px;gap:12px;padding:12px 12px 52px;
 }
@@ -109,7 +103,6 @@ button{font-family:inherit}
 .link-btn{border:0;background:none;color:var(--blue);font-size:13px;font-weight:500;cursor:pointer;padding:2px 4px;border-radius:6px}
 .link-btn:hover{background:var(--blue-soft)}
 .link-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
-/* Queue */
 .file-list{flex:1;min-height:0;overflow-y:auto;padding:2px 8px 10px}
 .item{
   position:relative;display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;
@@ -127,7 +120,6 @@ button{font-family:inherit}
 }
 .item:hover .item-remove,.item-remove:focus-visible{opacity:1}
 .item-remove:hover{background:var(--red);color:#fff}
-/* Stage */
 .canvas-toolbar{
   flex:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px;
   padding:10px 12px;border-bottom:1px solid var(--hair);
@@ -200,8 +192,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
 .empty-sub{font-size:12.5px;color:var(--text2)}
 .bg-white .empty-title{color:#1D1D1F}.bg-white .empty-sub{color:#6E6E73}
 .bg-dark .empty-title{color:#F5F5F7}.bg-dark .empty-sub{color:#98989D}
-
-/* Controls */
 .controls{overflow-y:auto}
 .controls-inner{padding:14px;display:flex;flex-direction:column;gap:16px}
 .ctl-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
@@ -238,7 +228,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
 .util-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btn.secondary{background:var(--elev);border-color:transparent}
 .btn.secondary:hover{background:var(--track)}
-/* Floating status pill */
 .status{
   position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:50;max-width:min(760px,calc(100vw - 48px));
   padding:8px 16px;border-radius:999px;font-size:12.5px;color:var(--text2);white-space:nowrap;overflow:hidden;
@@ -256,8 +245,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
 .status[data-kind="busy"]::before{background:var(--blue);animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
 @media (prefers-reduced-motion:reduce){.status[data-kind="busy"]::before{animation:none}}
-
-/* ===== Responsive down to 980x660 ===== */
 @media (max-width:1100px){
   .workspace{grid-template-columns:218px 1fr 258px;gap:10px;padding:10px 10px 50px}
   .seg button{padding:5px 8px}
@@ -272,7 +259,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
 </head>
 <body>
 <div class="app">
-  <!-- ===== Header ===== -->
   <header class="topbar">
     <div class="brand">
       <svg class="brand-icon" viewBox="0 0 100 100" width="30" height="30" aria-hidden="true">
@@ -323,9 +309,7 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
       </button>
     </div>
   </header>
-  <!-- ===== Workspace ===== -->
   <main class="workspace">
-
     <!-- Queue -->
     <aside class="panel">
       <div class="panel-head">
@@ -334,7 +318,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
       </div>
       <div id="fileList" class="file-list" aria-label="Photo queue"></div>
     </aside>
-
     <!-- Canvas -->
     <section class="panel">
       <div class="canvas-toolbar">
@@ -354,7 +337,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
           <button id="zoomFit" class="mini" type="button" title="Fit (0)">Fit</button>
         </div>
       </div>
-
       <div id="compareBox" class="compare-box bg-checker mode-compare">
         <div id="emptyState" class="empty-state">
           <div class="empty-icon">
@@ -383,7 +365,6 @@ body.wails-drop-target-active #compareBox{box-shadow:inset 0 0 0 3px var(--blue)
             <button type="button" data-color="blue">Blue Ink</button>
           </div>
         </div>
-
         <div>
           <div class="ctl-row"><span class="ctl-label">Transparency</span><span id="transVal" class="val">50%</span></div>
           <input id="transSlider" class="ios-range" type="range" min="0" max="100" step="1" value="50" aria-label="Transparency">
@@ -451,11 +432,11 @@ function setStatus(text, kind = "idle") {
 function setTheme(theme, persist) {
   document.documentElement.setAttribute("data-theme", theme);
   el.themeToggle.setAttribute("aria-pressed", String(theme === "dark"));
-  if (persist) { try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* ignore */ } }
+  if (persist) { try { localStorage.setItem(THEME_KEY, theme); } catch (e) {  } }
 }
 function initTheme() {
   let saved = null;
-  try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ }
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) {  }
   const mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
   setTheme(saved === "dark" || saved === "light" ? saved : (mq && mq.matches ? "dark" : "light"), false);
   el.themeToggle.addEventListener("click", () => {
@@ -465,7 +446,7 @@ function initTheme() {
   if (mq && mq.addEventListener) {
     mq.addEventListener("change", (e) => {
       let s = null;
-      try { s = localStorage.getItem(THEME_KEY); } catch (err) { /* ignore */ }
+      try { s = localStorage.getItem(THEME_KEY); } catch (err) {  }
       if (!s) setTheme(e.matches ? "dark" : "light", false);
     });
   }
@@ -476,7 +457,6 @@ let activeIndex = -1;
 let isBusy = false;
 let canvasMode = "compare";
 let spaceDown = false;
-
 const itemEls = new Map(); // path -> DOM node
 function updateButtons() {
   const has = queuePaths.length > 0;
@@ -511,8 +491,6 @@ function buildItem(path) {
   node.append(thumb, name, rm);
   return node;
 }
-
-/* Thumbnails: at most 4 GetThumb calls in flight so 200+ photos never freeze the UI */
 let thumbPending = [];
 let thumbActive = 0;
 let thumbGen = 0;
@@ -541,7 +519,7 @@ function pumpThumbs() {
           box.textContent = "";
           box.appendChild(img);
         }
-      } catch (e) { /* thumbnail is optional */ }
+      } catch (e) {  }
       finally { thumbActive--; pumpThumbs(); }
     })();
   }
@@ -666,7 +644,6 @@ function clearViewer() {
   zoom = 1; panX = panY = 0; autoFit = true;
   el.zoomLbl.textContent = "100%";
 }
-/* Canvas interaction */
 function setMode(mode) {
   canvasMode = mode;
   el.modeCompare.classList.toggle("active", mode === "compare");
@@ -694,7 +671,7 @@ function bindCanvas() {
       drag = { type: "split" };
       setSplitFromEvent(e);
     } else return;
-    try { box.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    try { box.setPointerCapture(e.pointerId); } catch (err) {  }
     e.preventDefault();
   });
   box.addEventListener("pointermove", (e) => {
@@ -710,7 +687,7 @@ function bindCanvas() {
     if (!drag) return;
     drag = null;
     box.classList.remove("panning");
-    try { box.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    try { box.releasePointerCapture(e.pointerId); } catch (err) {  }
   };
   box.addEventListener("pointerup", end);
   box.addEventListener("pointercancel", end);
@@ -831,7 +808,7 @@ async function pickFolder() {
   try {
     const p = await b.SelectFolder();
     if (p && p.length) addPathsToQueue(p);
-    else if (Array.isArray(p) && p.length === 0) { /* cancelled or no photos */ }
+    else if (Array.isArray(p) && p.length === 0) {  }
   } catch (err) { setStatus("Could not open the folder picker.", "err"); }
 }
 async function submitPath() {
@@ -972,7 +949,6 @@ function bindUI() {
     }
   });
   window.addEventListener("blur", () => { spaceDown = false; el.compareBox.classList.remove("space-pan"); });
-
   // Never let the webview navigate to a dropped file; Wails handles drops natively in Go.
   window.addEventListener("dragover", (e) => e.preventDefault());
   window.addEventListener("drop", (e) => e.preventDefault());
@@ -1000,7 +976,7 @@ async function init() {
   try {
     const def = await backend().GetDefaultFolder();   // returns "" so the app always starts clean
     if (def) addPathsToQueue((await backend().ResolvePath(def)) || []);
-  } catch (err) { /* start clean */ }
+  } catch (err) {  }
   setStatus(HINT, "idle");
 }
 init();
