@@ -8,10 +8,10 @@ import (
 	"runtime"
 	"sort"
 
-	"://github.com"
-	"://github.com/pkg/options"
-	"://github.com/pkg/options/assetserver"
-	"://github.com/pkg/options/windows"
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
 //go:embed all:frontend/dist
